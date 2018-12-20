@@ -1,28 +1,106 @@
-import { h } from './view';
-import { App } from './app';
+import {h} from './view';
+import {App} from './app';
 // import { ActionTree } from './action';
 
 const state = {
-  count: 0
+  tasks: ['virtual dom', '完全に理解する'],
+  form: {
+    input: '',
+    hasError: false
+  }
 }
 
 const actions = {
-  increment: (state) => {
-    state.count++
+  validate: (state, input) => {
+    if (!input || input.length < 3 || input.length > 20) {
+      state.form.hasError = true
+    } else {
+      state.form.hasError = false
+    }
+    return !state.form.hasError
+  },
+  createTask: (state, title) => {
+    state.tasks.push(title)
+    state.form.input = ''
+  },
+  removeTask: (state, index) => {
+    state.tasks.splice(index, 1)
   }
 }
 
 const view = (state, actions) => {
   return h(
     'div',
-    null,
-    h('p', null, state.count),
-    h(
-      'button',
-      { type: 'button', onclick: () => actions.increment(state) },
-      'count up'
-    )
-  )
-}
+    {style: 'padding: 20px;'},
+    [
+      h('h1', {class: 'title'}, ['仮想DOM完全に理解したTODOリスト']),
+      h(
+        'div',
+        {class: 'field'},
+        [
+          h('label', {class: 'label'}, ['Task Title']),
+          h('input', {
+              type: 'text',
+              class: 'input',
+              style: 'width: 200px;',
+              value: state.form.input,
+              oninput: (ev) => {
+                const target = ev.target
+                state.form.input = target.value
+                actions.validate(state, state.form.input)
+              }
+            },
+            []),
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'button is-primary',
+              style: 'margin-left: 10px;',
+              onclick: () => {
+                if (actions.validate(state, state.form.input)) {
+                  actions.createTask(state, state.form.input)
+                }
+              }
+            },
+            ['create']
+          ),
+          h(
+            'p',
+            {
+              class: 'notification',
+              style: 'display: ${state.form.hasError ? "display" : "none"}'
+            },
+            ['3〜20文字で入力してください']
+          )]
+      ),
+      h(
+        'ul',
+        {class: 'panel'},
+        [
+          ...state.tasks.map((task, i) => {
+            return h(
+              'li',
+              {class: 'panel-block'},
+              [
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    class: 'delete',
+                    style: 'margin-right: 10px;',
+                    onclick: () => actions.removeTask(state, i)
+                  },
+                  ['remove']
+                ),
+                task
+              ]
+            );
+          })
+        ]
+      )
+    ]
+  );
+};
 
-new App ({ el: '#app', state, view, actions });
+new App({el: '#app', state, view, actions});

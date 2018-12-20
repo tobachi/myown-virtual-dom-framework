@@ -2,7 +2,7 @@
 /*
  * create virtual DOM
  */
-export function h (nodeName, attributes, ...children) {
+export function h (nodeName, attributes, children) {
   return {
     nodeName : nodeName,
     attributes: attributes,
@@ -54,7 +54,7 @@ function hasChanged (a, b) {
 
 // update real DOM
 export function updateElement (parent, oldNode, newNode, index = 0) {
-  if(!oldNode || isElement(oldNode)) {
+  if(!oldNode || !isElement(oldNode)) {
     if (isElement(parent)) {
       parent.appendChild(createElement(newNode))
       return
