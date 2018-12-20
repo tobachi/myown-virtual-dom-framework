@@ -14,7 +14,9 @@ export function h (nodeName, attributes, ...children) {
 export function createElement (vNode) {
   const el = document.createElement(vNode.nodeName)
   setAttributes(el, vNode.attributes)
-  if (Array.isArray(vNode.children)) vNode.children.forEach(child => ((el instanceof HTMLElement && child instanceof HTMLElement) && el.appendChild(createElement(child))))
+  if (Array.isArray(vNode.children))
+    vNode.children.forEach(child => ((isElement(el) && el.appendChild(createElement(child)))))
+  return el
 }
 
 // set attributes to target
@@ -52,34 +54,33 @@ function hasChanged (a, b) {
 
 // update real DOM
 export function updateElement (parent, oldNode, newNode, index = 0) {
-  if(!oldNode) {
-    if (parent instanceof HTMLElement && newNode instanceof HTMLElement) {
+  if(!oldNode || isElement(oldNode)) {
+    if (isElement(parent)) {
       parent.appendChild(createElement(newNode))
+      return
     }
-    return
   }
 
   const target = parent.childNodes[index]
 
-  if(!newNode) {
+  if(!newNode || !isElement(newNode)) {
     parent.removeChild(target)
     return
   }
 
   const changedType = hasChanged(oldNode, newNode)
   switch (changedType) {
-    case changedType.isText:
-    case changedType.isNode:
+    case 2:
       parent.replaceChild(createElement(newNode), target)
-      return
       break
-    case changedType.isValue:
+    case 3:
+      parent.replaceChild(createElement(newNode), target)
+      break
+    case 4:
       updateValue(target, newNode.attributes.value)
-      return
       break
-    case changedType.isAttr:
+    case 5:
       updateAttributes(target, oldNode.attributes, newNode.attributes)
-      return
       break
   }
 
@@ -105,4 +106,19 @@ function updateAttributes (target, oldAttrs, newAttrs) {
 
 function updateValue(target, newValue) {
   target.value = newValue
+}
+
+function isElement(obj) {
+  try {
+    //Using W3 DOM2 (works for FF, Opera and Chrom)
+    return obj instanceof HTMLElement;
+  }
+  catch(e){
+    //Browsers not supporting W3 DOM2 don't have HTMLElement and
+    //an exception is thrown and we end up here. Testing some
+    //properties that all elements have. (works on IE7)
+    return (typeof obj==="object") &&
+      (obj.nodeType===1) && (typeof obj.style === "object") &&
+      (typeof obj.ownerDocument ==="object");
+  }
 }

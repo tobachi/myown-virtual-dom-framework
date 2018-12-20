@@ -47,7 +47,7 @@ export class App {
       const action = actions[key];
       dispatched[key] = (state, ...data) => {
         const ret = action(state, ...data)
-        resolveNode()
+        this.resolveNode()
         return ret;
       };
     }
@@ -58,7 +58,7 @@ export class App {
  * recreate virtual DOM
  */
   resolveNode() {
-    this.newNode = this.view.vNode
+    this.newNode = this.view(this.state, this.actions)
     this.scheduleRender()
   }
 

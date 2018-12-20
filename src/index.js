@@ -16,7 +16,7 @@ const view = (state, actions) => {
   return h(
     'div',
     null,
-    h('p', pull, state.count),
+    h('p', null, state.count),
     h(
       'button',
       { type: 'button', onclick: () => actions.increment(state) },
