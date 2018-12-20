@@ -9,9 +9,28 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: "babel-loader",
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        loader: "babel-loader",
+        query: {
+          babelrc: false,
+          presets: [
+            '@babel/preset-env'
+          ],
+          plugins: [
+            [
+              '@babel/plugin-proposal-class-properties',
+              {
+                loose: true
+              }
+            ]
+          ]
+        }
       }
     ]
+  },
+  devServer: {
+    contentBase: __dirname + '/',
+    compress: true,
+    port: 9000
   }
 };

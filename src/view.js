@@ -1,32 +1,20 @@
 
-
-export const view = (state, actions) => {
-  return state, actions, this.vNode
-}
-
-// virtual DOM
-export const vNode = {
-  nodeName: '',
-  attributes: {
-    '': ''
-  },
-  children: []
-}
-
-// create virtual DOM
+/*
+ * create virtual DOM
+ */
 export function h (nodeName, attributes, ...children) {
-  return this.vNode({
+  return {
     nodeName : nodeName,
     attributes: attributes,
-    children: children
-  })
+    children: [...children]
+  }
 }
 
 // create real DOM
 export function createElement (vNode) {
   const el = document.createElement(vNode.nodeName)
   setAttributes(el, vNode.attributes)
-  vNode.children.forEach(child => el.appendChild(createElement(child)))
+  if (Array.isArray(vNode.children)) vNode.children.forEach(child => ((el instanceof HTMLElement && child instanceof HTMLElement) && el.appendChild(createElement(child))))
 }
 
 // set attributes to target
@@ -46,11 +34,11 @@ function isEventAttr(attr) {
 }
 
 const changedType = {
-  isNone,
-  isText,
-  isNode,
-  isValue,
-  isAttr
+  isNone: 1,
+  isText: 2,
+  isNode: 3,
+  isValue: 4,
+  isAttr: 5
 }
 
 // check diff between 2 virtual DOMs
@@ -65,7 +53,9 @@ function hasChanged (a, b) {
 // update real DOM
 export function updateElement (parent, oldNode, newNode, index = 0) {
   if(!oldNode) {
-    parent.appendChild(createElement(newNode))
+    if (parent instanceof HTMLElement && newNode instanceof HTMLElement) {
+      parent.appendChild(createElement(newNode))
+    }
     return
   }
 
@@ -106,7 +96,6 @@ function updateAttributes (target, oldAttrs, newAttrs) {
       target.removeAttribute(attr);
     }
   }
-
   for (let attr in newAttrs) {
     if (!isEventAttr(attr)) {
       target.setAttribute(attr, newAttrs[attr]);
