@@ -1,36 +1,16 @@
-import { createElement, updateElement } from './view'
+import { view, vNode, createElement, updateElement } from './view'
 
 export class App {
   el = ''
-  view = {
-    state: '',
-    actions: {},
-    vNode: {
-      nodeName: '',
-      attributes: {},
-      children: []
-    }
-  }
+  view = new view()
   state = ''
   actions = {}
-  oldNode = {
-    nodeName: '',
-    attributes: {},
-    children: []
-  }
-  newNode = {
-    nodeName: '',
-    attributes: {},
-    children: []
-  }
+  oldNode = new vNode()
+  newNode = new vNode()
   skipRender = false
 
   constructor(params) {
-    try {
-      this.el = document.querySelector(params.el)
-    } catch (e) {
-      this.el = params.el
-    }
+    this.el = typeof params.el === 'string' ? document.querySelector(params.el) : params.el
 
     this.view = params.view
     this.state = params.state

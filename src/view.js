@@ -1,13 +1,36 @@
 
-/*
- * create virtual DOM
- */
-export function h (nodeName, attributes, children) {
-  return {
-    nodeName : nodeName,
-    attributes: attributes,
-    children: [...children]
+export class view {
+  state = ''
+  actions = {}
+  vNode = new vNode()
+
+  constructor(state, actions) {
+    this.state = state
+    this.actions = actions
+    this.vNode = new vNode()
   }
+}
+
+/*
+ * virtual dom
+ */
+export class vNode {
+  nodeName = ''
+  attributes = {}
+  children = []
+
+  constructor(nodeName, attributes, children) {
+    this.nodeName = nodeName
+    this.attributes = attributes
+    this.children = [...children]
+  }
+}
+
+/*
+* create virtual DOM
+*/
+export function h (nodeName, attributes, children) {
+  return vNode(nodeName, attributes, children)
 }
 
 // create real DOM
